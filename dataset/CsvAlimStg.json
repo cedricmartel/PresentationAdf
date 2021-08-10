@@ -1,0 +1,51 @@
+{
+	"name": "CsvAlimStg",
+	"properties": {
+		"description": "Fichier CSV pour l'alimentation STG (dynamique)",
+		"linkedServiceName": {
+			"referenceName": "CompteStockage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"NomFichier": {
+				"type": "string"
+			},
+			"NomDossier": {
+				"type": "string",
+				"defaultValue": "depot"
+			},
+			"EncodageFichier": {
+				"type": "string",
+				"defaultValue": "ISO-8859-15"
+			}
+		},
+		"folder": {
+			"name": "STG"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().NomFichier",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().NomDossier",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ";",
+			"encodingName": {
+				"value": "@dataset().EncodageFichier",
+				"type": "Expression"
+			},
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

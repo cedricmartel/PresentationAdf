@@ -1,0 +1,111 @@
+{
+	"name": "ErreurPackage",
+	"properties": {
+		"activities": [
+			{
+				"name": "PsSuiviPackages",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[tec].[PsSuiviPackage]",
+					"storedProcedureParameters": {
+						"IdPackage": {
+							"value": {
+								"value": "@pipeline().parameters.IdPackage",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdSuiviFlux": {
+							"value": {
+								"value": "@pipeline().parameters.IdSuiviFlux",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdSuiviPackage": {
+							"value": {
+								"value": "@pipeline().parameters.IdSuiviPackage",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdSuiviStatut": {
+							"value": "err",
+							"type": "String"
+						},
+						"Information": {
+							"value": {
+								"value": "@pipeline().parameters.MessageErreur",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"NbrLignesInserees": {
+							"value": null,
+							"type": "Int32"
+						},
+						"NbrLignesLues": {
+							"value": null,
+							"type": "Int32"
+						},
+						"NbrLignesModifiees": {
+							"value": null,
+							"type": "Int32"
+						},
+						"NbrLignesSupprimees": {
+							"value": null,
+							"type": "Int32"
+						},
+						"NbrLignesRejetees": {
+							"value": null,
+							"type": "Int32"
+						},
+						"FichierAlim": {
+							"value": {
+								"value": "@pipeline().parameters.FichierAlim",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "SqlBdd",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"IdSuiviFlux": {
+				"type": "int"
+			},
+			"IdSuiviPackage": {
+				"type": "int"
+			},
+			"MessageErreur": {
+				"type": "string"
+			},
+			"IdPackage": {
+				"type": "int"
+			},
+			"FichierAlim": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Outils"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-08-10T16:56:43Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

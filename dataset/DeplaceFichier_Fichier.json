@@ -1,0 +1,36 @@
+{
+	"name": "DeplaceFichier_Fichier",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "CompteStockage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"NomDossier": {
+				"type": "string"
+			},
+			"NomFichier": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Commun"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().NomFichier",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().NomDossier",
+					"type": "Expression"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

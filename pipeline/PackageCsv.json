@@ -1,0 +1,673 @@
+{
+	"name": "PackageCsv",
+	"properties": {
+		"activities": [
+			{
+				"name": "Package en cours",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Noms de fichiers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviPackage]",
+						"storedProcedureParameters": {
+							"IdPackage": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdPackage",
+									"type": "Expression"
+								}
+							},
+							"IdParametre": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdParametre",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdSuiviFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviPackage": {
+								"type": "Int32",
+								"value": {
+									"value": "@variables('IdSuiviPackage')",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "run"
+							},
+							"Information": {
+								"type": "String",
+								"value": null
+							},
+							"NbrLignesInserees": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesLues": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesModifiees": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesSupprimees": {
+								"type": "Int32",
+								"value": null
+							},
+							"FichierAlim": {
+								"type": "String",
+								"value": {
+									"value": "@variables('NomFichierDestination')",
+									"type": "Expression"
+								}
+							},
+							"NbrLignesRejetees": {
+								"type": "Int32",
+								"value": null
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Noms de fichiers",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "NomFichierDestination",
+					"value": {
+						"value": "@concat(formatDateTime(utcnow(), 'yyyyMMdd_HHmmss'),'_',pipeline().parameters.NomFichierAlim)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Met le fichier dans traitements",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Package en cours",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DeplaceFichier",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"DossierSource": "depot",
+						"NomFichierSource": {
+							"value": "@pipeline().parameters.NomFichierAlim",
+							"type": "Expression"
+						},
+						"DossierDestination": "traitement",
+						"NomFichierDestination": {
+							"value": "@variables('NomFichierDestination')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Met le fichier dans archive",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Insertions dans la table de destination",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DeplaceFichier",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"DossierSource": "traitement",
+						"NomFichierSource": {
+							"value": "@variables('NomFichierDestination')",
+							"type": "Expression"
+						},
+						"DossierDestination": "archivage",
+						"NomFichierDestination": {
+							"value": "@variables('NomFichierDestination')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Package en succes",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Sql post traitement",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviPackage]",
+						"storedProcedureParameters": {
+							"IdPackage": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdPackage",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdSuiviFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviPackage": {
+								"type": "Int32",
+								"value": {
+									"value": "@variables('IdSuiviPackage')",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "scs"
+							},
+							"Information": {
+								"type": "String",
+								"value": null
+							},
+							"NbrLignesInserees": {
+								"type": "Int32",
+								"value": {
+									"value": "@if(contains(activity('Insertions dans la table de destination').output, 'rowsCopied'), activity('Insertions dans la table de destination').output.rowsCopied, 0)",
+									"type": "Expression"
+								}
+							},
+							"NbrLignesLues": {
+								"type": "Int32",
+								"value": {
+									"value": "@if(contains(activity('Insertions dans la table de destination').output, 'rowsRead'),activity('Insertions dans la table de destination').output.rowsRead, 0)",
+									"type": "Expression"
+								}
+							},
+							"NbrLignesModifiees": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesSupprimees": {
+								"type": "Int32",
+								"value": null
+							},
+							"FichierAlim": {
+								"type": "String",
+								"value": {
+									"value": "@variables('NomFichierDestination')",
+									"type": "Expression"
+								}
+							},
+							"IdParametre": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdParametre",
+									"type": "Expression"
+								}
+							},
+							"NbrLignesRejetees": {
+								"type": "Int32",
+								"value": null
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Erreur Archivage fichier",
+				"description": "si il y a une erreur pour le déplacement dans archive, il faudrait déplacer le fichier vers erreur... mais partant de la constatation initiale, ça risquerait aussi de remonter une erreur. Du coup le fichier reste dans traitement dans ce cas ",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Met le fichier dans archive",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ErreurPackage",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"IdSuiviFlux": {
+							"value": "@pipeline().parameters.IdSuiviFlux",
+							"type": "Expression"
+						},
+						"IdSuiviPackage": {
+							"value": "@variables('IdSuiviPackage')",
+							"type": "Expression"
+						},
+						"MessageErreur": {
+							"value": "@activity('Met le fichier dans archive').Error.Message",
+							"type": "Expression"
+						},
+						"IdPackage": {
+							"value": "@pipeline().parameters.IdPackage",
+							"type": "Expression"
+						},
+						"IdParametre": {
+							"value": "@pipeline().parameters.IdParametre",
+							"type": "Expression"
+						},
+						"FichierAlim": {
+							"value": "@variables('NomFichierDestination')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Erreur Deplacement fichier",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Met le fichier dans traitements",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ErreurPackage",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"IdSuiviFlux": {
+							"value": "@pipeline().parameters.IdSuiviFlux",
+							"type": "Expression"
+						},
+						"IdSuiviPackage": {
+							"value": "@variables('IdSuiviPackage')",
+							"type": "Expression"
+						},
+						"MessageErreur": {
+							"value": "@activity('Met le fichier dans traitements').Error.Message",
+							"type": "Expression"
+						},
+						"IdPackage": {
+							"value": "@pipeline().parameters.IdPackage",
+							"type": "Expression"
+						},
+						"IdParametre": {
+							"value": "@pipeline().parameters.IdParametre",
+							"type": "Expression"
+						},
+						"FichierAlim": {
+							"value": "@pipeline().parameters.NomFichierAlim",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Insertions dans la table de destination",
+				"description": "encodage du fichier : UTF-8 ou ISO-8859-15",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Met le fichier dans traitements",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "IdSuiviPackage",
+								"value": {
+									"value": "@variables('IdSuiviPackage')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": {
+							"value": "@{concat('TRUNCATE TABLE stg.', pipeline().parameters.NomTableAlim)}",
+							"type": "Expression"
+						},
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"value": "@json(pipeline().parameters.MappingsCsvStg)",
+						"type": "Expression"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "CsvAlimStg",
+						"type": "DatasetReference",
+						"parameters": {
+							"NomFichier": {
+								"value": "@variables('NomFichierDestination')",
+								"type": "Expression"
+							},
+							"NomDossier": "traitement",
+							"EncodageFichier": {
+								"value": "@pipeline().parameters.EncodageFichierAlim",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "TableStg",
+						"type": "DatasetReference",
+						"parameters": {
+							"NomTable": {
+								"value": "@pipeline().parameters.NomTableAlim",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Erreur Insertion bdd",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Insertions dans la table de destination",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ErreurPackage",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"IdSuiviFlux": {
+							"value": "@pipeline().parameters.IdSuiviFlux",
+							"type": "Expression"
+						},
+						"IdSuiviPackage": {
+							"value": "@variables('IdSuiviPackage')",
+							"type": "Expression"
+						},
+						"MessageErreur": {
+							"value": "@activity('Insertions dans la table de destination').Error.Message",
+							"type": "Expression"
+						},
+						"IdPackage": {
+							"value": "@pipeline().parameters.IdPackage",
+							"type": "Expression"
+						},
+						"IdParametre": {
+							"value": "@pipeline().parameters.IdParametre",
+							"type": "Expression"
+						},
+						"FichierAlim": {
+							"value": "@variables('NomFichierDestination')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Met le fichier dans erreur",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Erreur Insertion bdd",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DeplaceFichier",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"DossierSource": "traitement",
+						"NomFichierSource": {
+							"value": "@variables('NomFichierDestination')",
+							"type": "Expression"
+						},
+						"DossierDestination": "erreur",
+						"NomFichierDestination": {
+							"value": "@variables('NomFichierDestination')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Sql post traitement",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Met le fichier dans archive",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "SqlPostTraitement",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"SqlPostTraitement": {
+							"value": "@pipeline().parameters.SqlPostTraitement",
+							"type": "Expression"
+						},
+						"IdSuiviPackage": {
+							"value": "@variables('IdSuiviPackage')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Erreur post traitement",
+				"description": "si il y a une erreur pour le déplacement dans archive, il faudrait déplacer le fichier vers erreur... mais partant de la constatation initiale, ça risquerait aussi de remonter une erreur. Du coup le fichier reste dans traitement dans ce cas ",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Sql post traitement",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ErreurPackage",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"IdSuiviFlux": {
+							"value": "@pipeline().parameters.IdSuiviFlux",
+							"type": "Expression"
+						},
+						"IdSuiviPackage": {
+							"value": "@variables('IdSuiviPackage')",
+							"type": "Expression"
+						},
+						"MessageErreur": {
+							"value": "@activity('Sql post traitement').Error.Message",
+							"type": "Expression"
+						},
+						"IdPackage": {
+							"value": "@pipeline().parameters.IdPackage",
+							"type": "Expression"
+						},
+						"IdParametre": {
+							"value": "@pipeline().parameters.IdParametre",
+							"type": "Expression"
+						},
+						"FichierAlim": {
+							"value": "@variables('NomFichierDestination')",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"NomTableAlim": {
+				"type": "string",
+				"defaultValue": "SageEcrituresEner"
+			},
+			"NomFichierAlim": {
+				"type": "string",
+				"defaultValue": "Data_SAGE_Ecritures_ENER.csv"
+			},
+			"IdPackage": {
+				"type": "string",
+				"defaultValue": "1"
+			},
+			"IdFlux": {
+				"type": "string",
+				"defaultValue": "1"
+			},
+			"MappingsCsvStg": {
+				"type": "string",
+				"defaultValue": "{ type: \"TabularTranslator\", mappings: [ { source: { name: \"Date\" }, sink: { name: \"DateEcriture\" } }, { source: { name: \"Nature flux\" }, sink: { name: \"NatureFlux\" } }, { source: { name: \"Section analytique\" }, sink: { name: \"Section\" } }, { source: { name: \"Libellé écriture\" }, sink: { name: \"LibelleEcriture\" } }, { source: { name: \"Devise\" }, sink: { name: \"Devise\" } }, { source: { name: \"Montant\" }, sink: { name: \"MontantTr\" } }, { source: { name: \"Montant signé TR\" }, sink: { name: \"MontantSigneTr\" } }, { source: { name: \"Sens\" }, sink: { name: \"Sens\" } }, { source: { name: \"Sens de deversement\" }, sink: { name: \"SensDeversement\" } }, { source: { name: \"Montant TC\" }, sink: { name: \"MontantTc\" } }, { source: { name: \"Montant signé TC\" }, sink: { name: \"MontantSigneTc\" } }, { source: { name: \"Compte\" }, sink: { name: \"Compte\" } }, { source: { name: \"Etablissement\" }, sink: { name: \"Etablissement\" } }, { source: { name: \"Journal\" }, sink: { name: \"Journal\" } }, { source: { name: \"Quantité\" }, sink: { name: \"Quantite\" } }, { source: { name: \"Unité\" }, sink: { name: \"Unite\" } }, { source: { name: \"N° pièce analytique\" }, sink: { name: \"NumeroPiece\" } }, { source: { name: \"Type écriture analytique\" }, sink: { name: \"TypeEcriture\" } }, { source: { name: \"N° lot analytique\" }, sink: { name: \"NumeroLot\" } }, { source: { name: \"Origine lot analytique\" }, sink: { name: \"OrigineLot\" } }, { source: { name: \"N° pièce générale\" }, sink: { name: \"NumeroPieceGenerale\" } }, { source: { name: \"N° écriture générale\" }, sink: { name: \"NumeroEcritureGenerale\" } }, { source: { name: \"Type écriture générale\" }, sink: { name: \"TypeEcritureGenerale\" } },  { source: { name: \"IdSuiviPackage\" }, sink: { name: \"IdSuiviPackage\" } }] }"
+			},
+			"IdParametre": {
+				"type": "string",
+				"defaultValue": "1"
+			},
+			"IdSuiviFlux": {
+				"type": "string"
+			},
+			"EncodageFichierAlim": {
+				"type": "string",
+				"defaultValue": "ISO-8859-15"
+			},
+			"SqlPostTraitement": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"IdSuiviPackage": {
+				"type": "String"
+			},
+			"NomFichierDestination": {
+				"type": "String"
+			},
+			"Information": {
+				"type": "String"
+			},
+			"NbrLignesInserees": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "1 Alimentation STG/Package"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-08-10T19:40:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

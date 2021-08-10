@@ -1,0 +1,19 @@
+{
+	"name": "PackageDataFlowScd2",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-08-10T14:37:14Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

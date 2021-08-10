@@ -1,0 +1,431 @@
+{
+	"name": "Flux",
+	"properties": {
+		"description": "Pipeline master pour les alimentations \nParamètre IdPackage : si <= 0, traitement de tous les pacakges du flux. Sinon, traitement de l'idPackage spécifié ",
+		"activities": [
+			{
+				"name": "Initialisation Flux",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviFlux]",
+						"storedProcedureParameters": {
+							"Idflux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": null
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "ini"
+							},
+							"Information": {
+								"type": "String",
+								"value": null
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Recuperation Id Suivi Flux",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Initialisation Flux",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "IdSuiviFlux",
+					"value": {
+						"value": "@{activity('Initialisation Flux').output.firstRow.IdSuiviFlux}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Chargement Packages",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Liste des packages a charger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Liste des packages a charger').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Package",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "Package",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"Source": {
+										"value": "@item().SourceDonnees",
+										"type": "Expression"
+									},
+									"Destination": {
+										"value": "@item().CibleDonnees\n",
+										"type": "Expression"
+									},
+									"IdPackage": {
+										"value": "@item().IdPackage",
+										"type": "Expression"
+									},
+									"IdFlux": {
+										"value": "@item().IdFlux",
+										"type": "Expression"
+									},
+									"MappingsCsvStg": {
+										"value": "@item().MappingPipeline",
+										"type": "Expression"
+									},
+									"IdSuiviFlux": {
+										"value": "@variables('IdSuiviFlux')",
+										"type": "Expression"
+									},
+									"EncodageFichierAlim": {
+										"value": "@item().EncodageFichier",
+										"type": "Expression"
+									},
+									"SqlPostTraitement": {
+										"value": "@item().SqlPostTraitement",
+										"type": "Expression"
+									},
+									"CodeModeChargement": {
+										"value": "@item().CodeModeChargement",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Liste des packages a charger",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Flux en cours",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT * FROM tec.Package\nWHERE IdFlux = @{pipeline().parameters.IdFlux}\n @{if(lessOrEquals(int(pipeline().parameters.IdPackage), 0), '', concat(' AND IdPackage = ', string(pipeline().parameters.IdPackage)))} \nORDER BY Ordre",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Bdd",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Flux en succes",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Chargement Packages",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviFlux]",
+						"storedProcedureParameters": {
+							"Idflux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": {
+									"value": "@variables('IdSuiviFlux')",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "scs"
+							},
+							"Information": {
+								"type": "String",
+								"value": null
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Erreur chargement packages",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Chargement Packages",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviFlux]",
+						"storedProcedureParameters": {
+							"Idflux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": {
+									"value": "@variables('IdSuiviFlux')",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "err"
+							},
+							"Information": {
+								"type": "String",
+								"value": {
+									"value": "@activity('Chargement Packages').Error.Message",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Flux en cours",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Recuperation Id Suivi Flux",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviFlux]",
+						"storedProcedureParameters": {
+							"Idflux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": {
+									"value": "@variables('IdSuiviFlux')",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "run"
+							},
+							"Information": {
+								"type": "String",
+								"value": null
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Erreur chargement liste",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Liste des packages a charger",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviFlux]",
+						"storedProcedureParameters": {
+							"Idflux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": {
+									"value": "@variables('IdSuiviFlux')",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "err"
+							},
+							"Information": {
+								"type": "String",
+								"value": {
+									"value": "@activity('Liste des packages a charger').Error.Message",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"IdFlux": {
+				"type": "int",
+				"defaultValue": 1
+			},
+			"IdPackage": {
+				"type": "int",
+				"defaultValue": -1
+			}
+		},
+		"variables": {
+			"IdSuiviFlux": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-08-10T16:56:44Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

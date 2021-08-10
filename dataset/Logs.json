@@ -1,0 +1,74 @@
+{
+	"name": "Logs",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlBdd",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Commun"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "IdSuiviPackage",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "IdSuiviFlux",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "IdPackage",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DateDebutPackage",
+				"type": "datetime2",
+				"scale": 7
+			},
+			{
+				"name": "DateFinPackage",
+				"type": "datetime2",
+				"scale": 7
+			},
+			{
+				"name": "IdSuiviStatut",
+				"type": "char"
+			},
+			{
+				"name": "Information",
+				"type": "varchar"
+			},
+			{
+				"name": "NbrLignesLues",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "NbrLignesInserees",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "NbrLignesModifiees",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "NbrLignesSupprimees",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "tec",
+			"table": "SuiviPackage"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

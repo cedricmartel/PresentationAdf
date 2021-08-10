@@ -1,0 +1,16 @@
+{
+	"name": "Bdd",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlBdd",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Commun"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

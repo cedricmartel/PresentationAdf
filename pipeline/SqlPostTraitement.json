@@ -1,0 +1,66 @@
+{
+	"name": "SqlPostTraitement",
+	"properties": {
+		"description": "Execute le script SQL post traitement\nremplace :\n{IdSuiviPackage} par sa valeur",
+		"activities": [
+			{
+				"name": "Sql Post Traitement",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@not(equals(coalesce(pipeline().parameters.SqlPostTraitement, ''), ''))",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Exec Sql Post Traitement",
+							"description": "on concatène '; select 1;' à la fin car le traitement doit retourner une valeur. ",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "@concat(replace(pipeline().parameters.SqlPostTraitement, '{IdSuiviPackage}', string(pipeline().parameters.IdSuiviPackage)), '; SELECT 1;')",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "Bdd",
+									"type": "DatasetReference"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"SqlPostTraitement": {
+				"type": "string"
+			},
+			"IdSuiviPackage": {
+				"type": "int",
+				"defaultValue": 0
+			}
+		},
+		"folder": {
+			"name": "Outils"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-08-10T16:22:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

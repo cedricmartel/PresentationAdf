@@ -1,0 +1,34 @@
+{
+	"name": "TableDynamique",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlBdd",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"NomSchema": {
+				"type": "string"
+			},
+			"NomTable": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Commun"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().NomSchema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().NomTable",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

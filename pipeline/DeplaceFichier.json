@@ -1,0 +1,133 @@
+{
+	"name": "DeplaceFichier",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copie vers destination",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DeplaceFichier_Fichier",
+						"type": "DatasetReference",
+						"parameters": {
+							"NomDossier": {
+								"value": "@pipeline().parameters.DossierSource",
+								"type": "Expression"
+							},
+							"NomFichier": {
+								"value": "@pipeline().parameters.NomFichierSource",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DeplaceFichier_Fichier",
+						"type": "DatasetReference",
+						"parameters": {
+							"NomDossier": {
+								"value": "@pipeline().parameters.DossierDestination",
+								"type": "Expression"
+							},
+							"NomFichier": {
+								"value": "@pipeline().parameters.NomFichierDestination",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Supprime Source",
+				"type": "Delete",
+				"dependsOn": [
+					{
+						"activity": "Copie vers destination",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DeplaceFichier_Fichier",
+						"type": "DatasetReference",
+						"parameters": {
+							"NomDossier": {
+								"value": "@pipeline().parameters.DossierSource",
+								"type": "Expression"
+							},
+							"NomFichier": {
+								"value": "@pipeline().parameters.NomFichierSource",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"parameters": {
+			"DossierSource": {
+				"type": "string"
+			},
+			"NomFichierSource": {
+				"type": "string"
+			},
+			"DossierDestination": {
+				"type": "string"
+			},
+			"NomFichierDestination": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Outils"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-08-10T16:22:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

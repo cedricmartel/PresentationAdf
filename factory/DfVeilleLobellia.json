@@ -1,0 +1,9 @@
+{
+	"name": "DfVeilleLobellia",
+	"location": "francecentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "d5583249-87c0-409a-9bdc-fb8cc07da362",
+		"tenantId": "54061c1e-bb57-4612-bd30-fe4e273c58f1"
+	}
+}
