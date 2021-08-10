@@ -177,10 +177,81 @@
 					},
 					"cases": [
 						{
-							"value": "CSV"
+							"value": "CSV",
+							"activities": [
+								{
+									"name": "PackageCsv",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "PackageCsv",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"NomTableAlim": {
+												"value": "@pipeline().parameters.Destination",
+												"type": "Expression"
+											},
+											"NomFichierAlim": {
+												"value": "@pipeline().parameters.Source",
+												"type": "Expression"
+											},
+											"IdPackage": {
+												"value": "@pipeline().parameters.IdPackage",
+												"type": "Expression"
+											},
+											"IdFlux": {
+												"value": "@pipeline().parameters.IdFlux",
+												"type": "Expression"
+											},
+											"MappingsCsvStg": {
+												"value": "@pipeline().parameters.MappingsCsvStg",
+												"type": "Expression"
+											},
+											"EncodageFichierAlim": {
+												"value": "@pipeline().parameters.EncodageFichierAlim",
+												"type": "Expression"
+											},
+											"SqlPostTraitement": {
+												"value": "@pipeline().parameters.SqlPostTraitement",
+												"type": "Expression"
+											},
+											"IdSuiviFlux": {
+												"value": "@pipeline().parameters.IdSuiviFlux",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
 						},
 						{
-							"value": "SCD2"
+							"value": "SCD2",
+							"activities": [
+								{
+									"name": "Wait2",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
+						}
+					],
+					"defaultActivities": [
+						{
+							"name": "Wait1",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
 						}
 					]
 				}

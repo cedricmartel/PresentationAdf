@@ -33,13 +33,6 @@
 									"type": "Expression"
 								}
 							},
-							"IdParametre": {
-								"type": "Int32",
-								"value": {
-									"value": "@pipeline().parameters.IdParametre",
-									"type": "Expression"
-								}
-							},
 							"IdSuiviFlux": {
 								"type": "Int32",
 								"value": {
@@ -258,13 +251,6 @@
 									"type": "Expression"
 								}
 							},
-							"IdParametre": {
-								"type": "Int32",
-								"value": {
-									"value": "@pipeline().parameters.IdParametre",
-									"type": "Expression"
-								}
-							},
 							"NbrLignesRejetees": {
 								"type": "Int32",
 								"value": null
@@ -355,10 +341,6 @@
 						},
 						"IdPackage": {
 							"value": "@pipeline().parameters.IdPackage",
-							"type": "Expression"
-						},
-						"IdParametre": {
-							"value": "@pipeline().parameters.IdParametre",
 							"type": "Expression"
 						},
 						"FichierAlim": {
@@ -486,10 +468,6 @@
 						},
 						"IdPackage": {
 							"value": "@pipeline().parameters.IdPackage",
-							"type": "Expression"
-						},
-						"IdParametre": {
-							"value": "@pipeline().parameters.IdParametre",
 							"type": "Expression"
 						},
 						"FichierAlim": {
@@ -626,19 +604,15 @@
 				"type": "string",
 				"defaultValue": "{ type: \"TabularTranslator\", mappings: [ { source: { name: \"Date\" }, sink: { name: \"DateEcriture\" } }, { source: { name: \"Nature flux\" }, sink: { name: \"NatureFlux\" } }, { source: { name: \"Section analytique\" }, sink: { name: \"Section\" } }, { source: { name: \"Libellé écriture\" }, sink: { name: \"LibelleEcriture\" } }, { source: { name: \"Devise\" }, sink: { name: \"Devise\" } }, { source: { name: \"Montant\" }, sink: { name: \"MontantTr\" } }, { source: { name: \"Montant signé TR\" }, sink: { name: \"MontantSigneTr\" } }, { source: { name: \"Sens\" }, sink: { name: \"Sens\" } }, { source: { name: \"Sens de deversement\" }, sink: { name: \"SensDeversement\" } }, { source: { name: \"Montant TC\" }, sink: { name: \"MontantTc\" } }, { source: { name: \"Montant signé TC\" }, sink: { name: \"MontantSigneTc\" } }, { source: { name: \"Compte\" }, sink: { name: \"Compte\" } }, { source: { name: \"Etablissement\" }, sink: { name: \"Etablissement\" } }, { source: { name: \"Journal\" }, sink: { name: \"Journal\" } }, { source: { name: \"Quantité\" }, sink: { name: \"Quantite\" } }, { source: { name: \"Unité\" }, sink: { name: \"Unite\" } }, { source: { name: \"N° pièce analytique\" }, sink: { name: \"NumeroPiece\" } }, { source: { name: \"Type écriture analytique\" }, sink: { name: \"TypeEcriture\" } }, { source: { name: \"N° lot analytique\" }, sink: { name: \"NumeroLot\" } }, { source: { name: \"Origine lot analytique\" }, sink: { name: \"OrigineLot\" } }, { source: { name: \"N° pièce générale\" }, sink: { name: \"NumeroPieceGenerale\" } }, { source: { name: \"N° écriture générale\" }, sink: { name: \"NumeroEcritureGenerale\" } }, { source: { name: \"Type écriture générale\" }, sink: { name: \"TypeEcritureGenerale\" } },  { source: { name: \"IdSuiviPackage\" }, sink: { name: \"IdSuiviPackage\" } }] }"
 			},
-			"IdParametre": {
-				"type": "string",
-				"defaultValue": "1"
-			},
-			"IdSuiviFlux": {
-				"type": "string"
-			},
 			"EncodageFichierAlim": {
 				"type": "string",
 				"defaultValue": "ISO-8859-15"
 			},
 			"SqlPostTraitement": {
 				"type": "string"
+			},
+			"IdSuiviFlux": {
+				"type": "int"
 			}
 		},
 		"variables": {
