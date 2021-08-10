@@ -315,10 +315,6 @@
 							"value": "@pipeline().parameters.IdPackage",
 							"type": "Expression"
 						},
-						"IdParametre": {
-							"value": "@pipeline().parameters.IdParametre",
-							"type": "Expression"
-						},
 						"FichierAlim": {
 							"value": "@variables('NomFichierDestination')",
 							"type": "Expression"
@@ -567,7 +563,7 @@
 			},
 			{
 				"name": "Erreur post traitement",
-				"description": "si il y a une erreur pour le déplacement dans archive, il faudrait déplacer le fichier vers erreur... mais partant de la constatation initiale, ça risquerait aussi de remonter une erreur. Du coup le fichier reste dans traitement dans ce cas ",
+				"description": "",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
@@ -599,10 +595,6 @@
 						},
 						"IdPackage": {
 							"value": "@pipeline().parameters.IdPackage",
-							"type": "Expression"
-						},
-						"IdParametre": {
-							"value": "@pipeline().parameters.IdParametre",
 							"type": "Expression"
 						},
 						"FichierAlim": {
@@ -662,9 +654,6 @@
 			"NbrLignesInserees": {
 				"type": "String"
 			}
-		},
-		"folder": {
-			"name": "1 Alimentation STG/Package"
 		},
 		"annotations": [],
 		"lastPublishTime": "2021-08-10T19:40:31Z"
