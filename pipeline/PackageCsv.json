@@ -394,7 +394,7 @@
 					"sink": {
 						"type": "AzureSqlSink",
 						"preCopyScript": {
-							"value": "@{concat('TRUNCATE TABLE stg.', pipeline().parameters.NomTableAlim)}",
+							"value": "@{concat('TRUNCATE TABLE ', pipeline().parameters.NomTableAlim)}",
 							"type": "Expression"
 						},
 						"disableMetricsCollection": false
@@ -424,13 +424,14 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "TableStg",
+						"referenceName": "TableDynamique",
 						"type": "DatasetReference",
 						"parameters": {
-							"NomTable": {
-								"value": "@pipeline().parameters.NomTableAlim",
+							"NomSchema": {
+								"value": "@split(pipeline().parameters.NomTableAlim, '.')[0]",
 								"type": "Expression"
-							}
+							},
+							"NomTable": "@split(pipeline().parameters.NomTableAlim, '.')[1]"
 						}
 					}
 				]
