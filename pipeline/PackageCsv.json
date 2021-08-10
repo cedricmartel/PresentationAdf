@@ -7,7 +7,7 @@
 				"type": "Lookup",
 				"dependsOn": [
 					{
-						"activity": "Noms de fichiers",
+						"activity": "Recuperation Id Suivi Package",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -579,6 +579,113 @@
 							"value": "@variables('NomFichierDestination')",
 							"type": "Expression"
 						}
+					}
+				}
+			},
+			{
+				"name": "Initialisation package",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Noms de fichiers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviPackage]",
+						"storedProcedureParameters": {
+							"IdPackage": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdPackage",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdSuiviFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviPackage": {
+								"type": "Int32",
+								"value": null
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "ini"
+							},
+							"Information": {
+								"type": "String",
+								"value": null
+							},
+							"NbrLignesInserees": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesLues": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesModifiees": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesSupprimees": {
+								"type": "Int32",
+								"value": null
+							},
+							"FichierAlim": {
+								"type": "String",
+								"value": {
+									"value": "@variables('NomFichierDestination')",
+									"type": "Expression"
+								}
+							},
+							"NbrLignesRejetees": {
+								"type": "Int32",
+								"value": null
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Recuperation Id Suivi Package",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Initialisation package",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "IdSuiviPackage",
+					"value": {
+						"value": "@{activity('Initialisation Package').output.firstRow.IdSuiviPackage}",
+						"type": "Expression"
 					}
 				}
 			}
