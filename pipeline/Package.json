@@ -121,7 +121,28 @@
 											"IdSuiviFlux": {
 												"value": "@pipeline().parameters.IdSuiviFlux",
 												"type": "Expression"
-											}
+											},
+											"Source": {
+												"value": "@pipeline().parameters.Source",
+												"type": "Expression"
+											},
+											"Rejet": {
+												"value": "@concat(pipeline().parameters.Source, 'Rejet')",
+												"type": "Expression"
+											},
+											"Cible": {
+												"value": "@pipeline().parameters.Destination",
+												"type": "Expression"
+											},
+											"ClefLogique": {
+												"value": "@pipeline().parameters.ClefLogique",
+												"type": "Expression"
+											},
+											"CodeModeChargementPackage": {
+												"value": "@pipeline().parameters.CodeModeChargement",
+												"type": "Expression"
+											},
+											"FiltreSqlSources": ""
 										}
 									}
 								}
@@ -168,6 +189,9 @@
 				"type": "string"
 			},
 			"CodeModeChargement": {
+				"type": "string"
+			},
+			"ClefLogique": {
 				"type": "string"
 			}
 		},
