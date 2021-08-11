@@ -127,7 +127,7 @@
 												"type": "Expression"
 											},
 											"Rejet": {
-												"value": "@concat(pipeline().parameters.Source, 'Rejet')",
+												"value": "@concat(pipeline().parameters.Destination, 'Rejet')",
 												"type": "Expression"
 											},
 											"Cible": {
