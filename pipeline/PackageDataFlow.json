@@ -70,8 +70,14 @@
 								}
 							},
 							"SinkModification": {
-								"NomSchema": "@pipeline().parameters.NamespaceTableCible",
-								"NomTable": "@pipeline().parameters.NomTableCible"
+								"NomSchema": {
+									"value": "@split(pipeline().parameters.Cible, '.')[0]",
+									"type": "Expression"
+								},
+								"NomTable": {
+									"value": "@split(pipeline().parameters.Cible, '.')[1]",
+									"type": "Expression"
+								}
 							}
 						}
 					},
