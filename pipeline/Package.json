@@ -96,15 +96,33 @@
 							]
 						},
 						{
-							"value": "SCD2",
+							"value": "Full",
 							"activities": [
 								{
-									"name": "Wait2",
-									"type": "Wait",
+									"name": "PackageDataFlow",
+									"type": "ExecutePipeline",
 									"dependsOn": [],
 									"userProperties": [],
 									"typeProperties": {
-										"waitTimeInSeconds": 1
+										"pipeline": {
+											"referenceName": "PackageDataFlow",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"IdPackage": {
+												"value": "@pipeline().parameters.IdPackage",
+												"type": "Expression"
+											},
+											"IdFlux": {
+												"value": "@pipeline().parameters.IdFlux",
+												"type": "Expression"
+											},
+											"IdSuiviFlux": {
+												"value": "@pipeline().parameters.IdSuiviFlux",
+												"type": "Expression"
+											}
+										}
 									}
 								}
 							]

@@ -26,31 +26,46 @@
 						"referenceName": "DataFlowStgVersAdmOds",
 						"type": "DataFlowReference",
 						"parameters": {
-							"IdSuiviPackage": "1",
-							"TableSource": "'Adm.RefCatLtbStgVersAdm'",
-							"TableDestination": "'adm.RefCatLtb'",
-							"ColonnesClef": "'CodeHierarchie,CodeLtb'",
+							"IdSuiviPackage": {
+								"value": "@variables('IdSuiviPackage')",
+								"type": "Expression"
+							},
+							"TableSource": {
+								"value": "'@{pipeline().parameters.Source}'",
+								"type": "Expression"
+							},
+							"TableDestination": {
+								"value": "'@{pipeline().parameters.Cible}'",
+								"type": "Expression"
+							},
+							"ColonnesClef": {
+								"value": "'@{pipeline().parameters.ClefLogique}'",
+								"type": "Expression"
+							},
 							"ActiverSuppressions": "true()",
-							"FiltreSqlSources": "''"
+							"FiltreSqlSources": {
+								"value": "'@{pipeline().parameters.FiltreSqlSources}'",
+								"type": "Expression"
+							}
 						},
 						"datasetParameters": {
 							"SinkRejet": {
 								"NomSchema": {
-									"value": "@pipeline().parameters.NamespaceTableRejet",
+									"value": "@split(pipeline().parameters.Rejet, '.')[0]",
 									"type": "Expression"
 								},
 								"NomTable": {
-									"value": "@pipeline().parameters.NomTableRejet",
+									"value": "@split(pipeline().parameters.Rejet, '.')[1]",
 									"type": "Expression"
 								}
 							},
 							"SinkInsertion": {
 								"NomSchema": {
-									"value": "@pipeline().parameters.NamespaceTableCible",
+									"value": "@split(pipeline().parameters.Cible, '.')[0]",
 									"type": "Expression"
 								},
 								"NomTable": {
-									"value": "@pipeline().parameters.NomTableCible",
+									"value": "@split(pipeline().parameters.Cible, '.')[1]",
 									"type": "Expression"
 								}
 							},
@@ -441,29 +456,17 @@
 				"type": "string",
 				"defaultValue": "1"
 			},
-			"NamespaceVueSource": {
+			"Source": {
 				"type": "string",
 				"defaultValue": "ods"
 			},
-			"NomVueSource": {
+			"Rejet": {
 				"type": "string",
-				"defaultValue": "SapCjifStgVersOds"
+				"defaultValue": "ods.SapCjifRejet"
 			},
-			"NamespaceTableRejet": {
+			"Cible": {
 				"type": "string",
-				"defaultValue": "ods"
-			},
-			"NomTableRejet": {
-				"type": "string",
-				"defaultValue": "SapCjifRejet"
-			},
-			"NamespaceTableCible": {
-				"type": "string",
-				"defaultValue": "ods"
-			},
-			"NomTableCible": {
-				"type": "string",
-				"defaultValue": "SapCjif"
+				"defaultValue": "ods.SapCjif"
 			},
 			"ClefLogique": {
 				"type": "string",
@@ -500,9 +503,6 @@
 			"Information": {
 				"type": "String"
 			}
-		},
-		"folder": {
-			"name": "2 Alimentation ADM ODS"
 		},
 		"annotations": []
 	}
