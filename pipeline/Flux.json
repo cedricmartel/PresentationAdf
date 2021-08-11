@@ -135,6 +135,10 @@
 									"CodeModeChargement": {
 										"value": "@item().CodeModeChargementPackage",
 										"type": "Expression"
+									},
+									"ClefLogique": {
+										"value": "@item().ChampsIdentifiantsCible",
+										"type": "Expression"
 									}
 								}
 							}
