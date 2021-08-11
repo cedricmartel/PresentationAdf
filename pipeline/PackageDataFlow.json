@@ -3,17 +3,507 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Wait1",
-				"type": "Wait",
-				"dependsOn": [],
+				"name": "DataFlowStgVersOds",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Package en cours",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
-					"waitTimeInSeconds": 1
+					"dataflow": {
+						"referenceName": "DataFlowStgVersAdmOds",
+						"type": "DataFlowReference",
+						"parameters": {
+							"IdSuiviPackage": "1",
+							"TableSource": "'Adm.RefCatLtbStgVersAdm'",
+							"TableDestination": "'adm.RefCatLtb'",
+							"ColonnesClef": "'CodeHierarchie,CodeLtb'",
+							"ActiverSuppressions": "true()",
+							"FiltreSqlSources": "''"
+						},
+						"datasetParameters": {
+							"SinkRejet": {
+								"NomSchema": {
+									"value": "@pipeline().parameters.NamespaceTableRejet",
+									"type": "Expression"
+								},
+								"NomTable": {
+									"value": "@pipeline().parameters.NomTableRejet",
+									"type": "Expression"
+								}
+							},
+							"SinkInsertion": {
+								"NomSchema": {
+									"value": "@pipeline().parameters.NamespaceTableCible",
+									"type": "Expression"
+								},
+								"NomTable": {
+									"value": "@pipeline().parameters.NomTableCible",
+									"type": "Expression"
+								}
+							},
+							"SinkModification": {
+								"NomSchema": "@pipeline().parameters.NamespaceTableCible",
+								"NomTable": "@pipeline().parameters.NomTableCible"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Initialisation package",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviPackage]",
+						"storedProcedureParameters": {
+							"IdPackage": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdPackage",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdSuiviFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviPackage": {
+								"type": "Int32",
+								"value": null
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "ini"
+							},
+							"Information": {
+								"type": "String",
+								"value": null
+							},
+							"NbrLignesInserees": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesLues": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesModifiees": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesSupprimees": {
+								"type": "Int32",
+								"value": null
+							},
+							"FichierAlim": {
+								"type": "String",
+								"value": null
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Recuperation Id Suivi Package",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Initialisation package",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "IdSuiviPackage",
+					"value": {
+						"value": "@{activity('Initialisation Package').output.firstRow.IdSuiviPackage}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Package en cours",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Recuperation Id Suivi Package",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[tec].[PsSuiviPackage]",
+						"storedProcedureParameters": {
+							"IdPackage": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdPackage",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviFlux": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.IdSuiviFlux",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviPackage": {
+								"type": "Int32",
+								"value": {
+									"value": "@variables('IdSuiviPackage')",
+									"type": "Expression"
+								}
+							},
+							"IdSuiviStatut": {
+								"type": "String",
+								"value": "run"
+							},
+							"Information": {
+								"type": "String",
+								"value": null
+							},
+							"NbrLignesInserees": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesLues": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesModifiees": {
+								"type": "Int32",
+								"value": null
+							},
+							"NbrLignesSupprimees": {
+								"type": "Int32",
+								"value": null
+							},
+							"FichierAlim": {
+								"type": "String",
+								"value": null
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Package en erreur",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "DataFlowStgVersOds",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[tec].[PsSuiviPackage]",
+					"storedProcedureParameters": {
+						"IdPackage": {
+							"value": {
+								"value": "@pipeline().parameters.IdPackage",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdSuiviFlux": {
+							"value": {
+								"value": "@pipeline().parameters.IdSuiviFlux",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdSuiviPackage": {
+							"value": {
+								"value": "@variables('IdSuiviPackage')",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdSuiviStatut": {
+							"value": "err",
+							"type": "String"
+						},
+						"Information": {
+							"value": {
+								"value": "@string(activity('DataFlowStgVersOds').output.runStatus)",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"NbrLignesInserees": {
+							"value": "0",
+							"type": "Int32"
+						},
+						"NbrLignesLues": {
+							"value": "0",
+							"type": "Int32"
+						},
+						"NbrLignesModifiees": {
+							"value": "0",
+							"type": "Int32"
+						},
+						"NbrLignesSupprimees": {
+							"value": "0",
+							"type": "Int32"
+						},
+						"IdParametre": {
+							"value": null,
+							"type": "Int32"
+						},
+						"FichierAlim": {
+							"value": null,
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "SqlBdd",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Package en succes",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "DataFlowStgVersOds",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[tec].[PsSuiviPackage]",
+					"storedProcedureParameters": {
+						"IdPackage": {
+							"value": {
+								"value": "@pipeline().parameters.IdPackage",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdSuiviFlux": {
+							"value": {
+								"value": "@pipeline().parameters.IdSuiviFlux",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdSuiviPackage": {
+							"value": {
+								"value": "@variables('IdSuiviPackage')",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdSuiviStatut": {
+							"value": "scs",
+							"type": "String"
+						},
+						"Information": {
+							"value": null,
+							"type": "String"
+						},
+						"NbrLignesInserees": {
+							"value": {
+								"value": "@if(contains(activity('DataFlowStgVersOds').output.runStatus.metrics, 'SinkInsertion'), max(activity('DataFlowStgVersOds').output.runStatus.metrics.SinkInsertion.rowsWritten,0), 0)\n ",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"NbrLignesLues": {
+							"value": {
+								"value": "@if(and(contains(activity('DataFlowStgVersOds').output.runStatus.metrics, 'SinkInsertion'), contains(activity('DataFlowStgVersOds').output.runStatus.metrics.SinkInsertion.sources, 'Source')), \n\tmax(activity('DataFlowStgVersOds').output.runStatus.metrics.SinkInsertion.sources.Source.rowsRead,0), \n\tif(and(contains(activity('DataFlowStgVersOds').output.runStatus.metrics, 'SinkModification'), contains(activity('DataFlowStgVersOds').output.runStatus.metrics.SinkModification.sources, 'Source')), \n\tmax(activity('DataFlowStgVersOds').output.runStatus.metrics.SinkModification.sources.Source.rowsRead,0), \n\t\tif(and(contains(activity('DataFlowStgVersOds').output.runStatus.metrics, 'SinkSuppression'), contains(activity('DataFlowStgVersOds').output.runStatus.metrics.SinkSuppression.sources, 'Source')), \n\t\t\tmax(activity('DataFlowStgVersOds').output.runStatus.metrics.SinkSuppression.sources.Source.rowsRead,0), \n\t\t\t0\n\t\t)\n\t)\n) ",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"NbrLignesModifiees": {
+							"value": {
+								"value": "@if(contains(activity('DataFlowStgVersOds').output.runStatus.metrics, 'SinkModification'), max(activity('DataFlowStgVersOds').output.runStatus.metrics.SinkModification.rowsWritten,0), 0)\n ",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"NbrLignesSupprimees": {
+							"value": {
+								"value": "@if(contains(activity('DataFlowStgVersOds').output.runStatus.metrics, 'SinkSuppression'), max(activity('DataFlowStgVersOds').output.runStatus.metrics.SinkSuppression.rowsWritten,0), 0)\n ",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"IdParametre": {
+							"value": null,
+							"type": "Int32"
+						},
+						"FichierAlim": {
+							"value": null
+						},
+						"NbrLignesRejetees": {
+							"value": {
+								"value": "@if(contains(activity('DataFlowStgVersOds').output.runStatus.metrics, 'SinkRejet'), activity('DataFlowStgVersOds').output.runStatus.metrics.SinkRejet.rowsWritten, 0)\n",
+								"type": "Expression"
+							}
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "SqlBdd",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
-		"annotations": [],
-		"lastPublishTime": "2021-08-10T14:37:14Z"
-	},
-	"type": "Microsoft.DataFactory/factories/pipelines"
+		"parameters": {
+			"IdPackage": {
+				"type": "string",
+				"defaultValue": "133"
+			},
+			"IdFlux": {
+				"type": "string",
+				"defaultValue": "3"
+			},
+			"IdSuiviFlux": {
+				"type": "string",
+				"defaultValue": "1"
+			},
+			"NamespaceVueSource": {
+				"type": "string",
+				"defaultValue": "ods"
+			},
+			"NomVueSource": {
+				"type": "string",
+				"defaultValue": "SapCjifStgVersOds"
+			},
+			"NamespaceTableRejet": {
+				"type": "string",
+				"defaultValue": "ods"
+			},
+			"NomTableRejet": {
+				"type": "string",
+				"defaultValue": "SapCjifRejet"
+			},
+			"NamespaceTableCible": {
+				"type": "string",
+				"defaultValue": "ods"
+			},
+			"NomTableCible": {
+				"type": "string",
+				"defaultValue": "SapCjif"
+			},
+			"ClefLogique": {
+				"type": "string",
+				"defaultValue": "LigneEcriture,NumeroPieceComptable"
+			},
+			"CodeModeChargementPackage": {
+				"type": "string",
+				"defaultValue": "Intervallaire"
+			},
+			"FiltreSqlSources": {
+				"type": "string",
+				"defaultValue": "DateSaisieSap between dateadd(day, -90, convert(date, '20210311', 112)) and dateadd(day, -1, convert(date, '20210311', 112))"
+			}
+		},
+		"variables": {
+			"NbrLignesSupprimees": {
+				"type": "String"
+			},
+			"NbrLignesLues": {
+				"type": "String"
+			},
+			"NbrLignesInserees": {
+				"type": "String"
+			},
+			"NbrLignesModifiees": {
+				"type": "String"
+			},
+			"NbrLignesRejetees": {
+				"type": "String"
+			},
+			"IdSuiviPackage": {
+				"type": "String"
+			},
+			"Information": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "2 Alimentation ADM ODS"
+		},
+		"annotations": []
+	}
 }
